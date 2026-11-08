@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Marshmallow Rush: Candyland Cruise 🍬</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23fff7ee%22 stroke=%22%23ff85a2%22 stroke-width=%228%22/><circle cx=%2235%22 cy=%2245%22 r=%226%22 fill=%22%23331122%22/><circle cx=%2265%22 cy=%2245%22 r=%226%22 fill=%22%23331122%22/><circle cx=%2226%22 cy=%2254%22 r=%228%22 fill=%22%23ff80bf%22/><circle cx=%2274%22 cy=%2254%22 r=%228%22 fill=%22%23ff80bf%22/><path d=%22M 40 60 Q 50 70 60 60%22 stroke=%22%23331122%22 stroke-width=%224%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>">
+  <script type="module" crossorigin src="./assets/index-BE21YqVA.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BjDjLvxj.css">
+</head>
+<body>
+  <!-- 3D Three.js WebGL Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- In-game Heads-Up Display & UI Overlay -->
+  <div id="ui-overlay">
+    <!-- Top HUD Bar -->
+    <header class="hud-header">
+      <div class="hud-group">
+        <div class="hud-pill" title="Score">
+          <span class="icon">⭐</span>
+          <span id="score-val" class="val">0</span>
+        </div>
+        <div class="hud-pill" title="Candies Gathered">
+          <span class="icon">🍬</span>
+          <span id="candy-val" class="val">0</span>
+        </div>
+        <div class="hud-pill" title="Distance Run">
+          <span class="icon">🏃</span>
+          <span id="dist-val" class="val">0m</span>
+        </div>
+      </div>
+
+      <div class="hud-group">
+        <button id="mute-btn" class="icon-btn" aria-label="Toggle Sound" title="Sound Mute/Unmute">🔊</button>
+      </div>
+    </header>
+
+    <!-- Sweet Combo Floating Notification -->
+    <div id="combo-badge" class="combo-badge hidden">x2 SWEET!</div>
+
+    <!-- Active Power-up Timer Bar -->
+    <div id="powerup-bar" class="powerup-container hidden">
+      <span id="powerup-label" class="powerup-label">⚡ SUGAR RUSH</span>
+      <div class="powerup-track">
+        <div id="powerup-fill" class="powerup-fill"></div>
+      </div>
+    </div>
+
+    <!-- Mobile On-Screen Touch Controls -->
+    <div class="touch-controls">
+      <button id="touch-left" class="touch-btn" aria-label="Move Left">⬅️</button>
+      <button id="touch-jump" class="touch-btn touch-btn-jump" aria-label="Jump">⬆️</button>
+      <button id="touch-right" class="touch-btn" aria-label="Move Right">➡️</button>
+    </div>
+  </div>
+
+  <!-- Start Game Modal Screen -->
+  <div id="start-screen" class="modal-screen">
+    <div class="card">
+      <div class="avatar-preview">🍡</div>
+      <h1 class="title-primary">MARSHMALLOW RUSH</h1>
+      <p class="title-sub">Candyland Cruise 🍭</p>
+
+      <div class="tutorial-box">
+        <div class="tut-row">
+          <span>Dodge Holes:</span>
+          <div>
+            <span class="key-badge">A</span>
+            <span class="key-badge">D</span> or
+            <span class="key-badge">◀</span>
+            <span class="key-badge">▶</span>
+          </div>
+        </div>
+        <div class="tut-row">
+          <span>Jump Over Holes:</span>
+          <div>
+            <span class="key-badge">SPACE</span> or
+            <span class="key-badge">W</span>
+          </div>
+        </div>
+        <div class="tut-row">
+          <span>Double Jump:</span>
+          <span class="key-badge">TAP JUMP 2x</span>
+        </div>
+        <div class="tut-row">
+          <span>Fast Drop:</span>
+          <div>
+            <span class="key-badge">S</span> or
+            <span class="key-badge">▼</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px; font-weight: 600; color: #8c4c70;">
+        🏆 Best Score: <span id="start-high-score" style="color: #ff3366;">0</span>
+      </div>
+
+      <button id="start-btn" class="candy-btn">PLAY NOW! 🚀</button>
+    </div>
+  </div>
+
+  <!-- Game Over Modal Screen -->
+  <div id="game-over-screen" class="modal-screen hidden">
+    <div class="card">
+      <div style="font-size: 3.5rem; margin-bottom: 6px;">🍩</div>
+      <h2 class="title-primary" style="font-size: 2.2rem;">OH CRUMBS!</h2>
+      <p class="title-sub">You splashed into the candy abyss!</p>
+
+      <div id="new-best-badge" class="new-best hidden">🏆 NEW BEST RECORD!</div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Final Score</div>
+          <div id="final-score" class="stat-value">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Best Score</div>
+          <div id="high-score" class="stat-value">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Candies</div>
+          <div id="final-candies" class="stat-value">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Distance</div>
+          <div id="final-dist" class="stat-value">0m</div>
+        </div>
+      </div>
+
+      <button id="restart-btn" class="candy-btn">RUN AGAIN! 🔄</button>
+    </div>
+  </div>
+
+</body>
+</html>
